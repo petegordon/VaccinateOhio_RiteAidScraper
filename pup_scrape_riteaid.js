@@ -198,7 +198,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
             
 //              let storeNumber = json.Data.stores[0].storeNumber
 
-
+                await delay(2000)
                 console.log('try to select storeNumber:'+storeNumber)
                 let selectorStore = '.covid-store__store__anchor[data-loc-id="'+storeNumber+'"]'
 
@@ -212,11 +212,13 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                     window.scrollTo({top: y, behavior: 'smooth'});
                 })    
                 console.log('before select click')
+                await delay(2000)
                 //await page.click(selectorStore)
                 await selectStoreButton.evaluate((e) => e.click());
                 //await selectStoreButton.click()   
                 console.log('after click select')             
                 console.log('select continue button')
+                await delay(1000)
                 let continueButton = await page.$('#continue')
                 console.log('before scroll')            
                 await page.$eval('#continue', (el) => {
