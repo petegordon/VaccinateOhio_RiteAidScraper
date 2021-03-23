@@ -202,8 +202,10 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 console.log('try to select storeNumber:'+storeNumber)
                 let selectorStore = '.covid-store__store__anchor[data-loc-id="'+storeNumber+'"]'
 
-                await page.waitForSelector(selectorStore)
+//                await page.waitForSelector(selectorStore)
                 let selectStoreButton = await page.$(selectorStore)
+
+                if(selectStoreButton){
 
                 await page.$eval(selectorStore, (el) => {
                     const yOffset = -200; 
@@ -291,9 +293,14 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                   await reformatStoreDataIntoLocationAvailability(storesVaccineDir)
                   awsUploadTime = currentTime
               }
-              
-              
+
+
               myEmitter.emit('processStores');  
+                            
+            }
+
+              
+
         }
 
 
