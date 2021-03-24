@@ -59,6 +59,7 @@ myEmitter.on('processStores', async () => {
         storeNumber = f.split('_')[5].split('.')[0]
         return storeNumber
     })
+
     console.log("stores to reprocess")
     console.log(storesToReprocess)
 
@@ -67,8 +68,17 @@ myEmitter.on('processStores', async () => {
     console.log(storesToProcess)
 
     storesToProcess.push(...storesToReprocess)
+
+    /** Ignore these changing, no longer available stores */
+    let ignoreStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
+    console.log("stores to ignore")
+    console.log(ignoreStores)
+
+    storesToProcess = storesToProcess.filter((s) => { console.log(s+':'+ignoreStores.includes(s)); return !ignoreStores.includes(s)})
+
     console.log("Zip Codes Available to Process:"+storesToProcess.length)
     console.log(storesToProcess)
+
 
 
     let page = await browser.newPage();
@@ -203,9 +213,13 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 let selectorStore = '.covid-store__store__anchor[data-loc-id="'+storeNumber+'"]'
 
 //                await page.waitForSelector(selectorStore)
-                let selectStoreButton = await page.$(selectorStore)
+                let selectStoreButton = await page.$(selectorStore) || ""
 
-                if(selectStoreButton){
+                if(selectStoreButton == ""){
+                    let deleteStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
+                    deleteStores.push(new String(storeNumber))
+                    fs.writeFileSync('riteaid_ignore_stores.json', JSON.stringify(deleteStores, null, 2))
+                } else {
 
                 await page.$eval(selectorStore, (el) => {
                     const yOffset = -200; 
@@ -292,12 +306,11 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
               if(currentTime.getTime() > (awsUploadTime.getTime()+(1000*60*10))){
                   await reformatStoreDataIntoLocationAvailability(storesVaccineDir)
                   awsUploadTime = currentTime
-              }
+              } 
 
-
-              myEmitter.emit('processStores');  
-                            
             }
+
+            myEmitter.emit('processStores'); 
 
               
 
