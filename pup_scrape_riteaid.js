@@ -52,7 +52,7 @@ myEmitter.on('processStores', async () => {
     console.log(storesProcessed)
     storesToReprocess = filesStoresProcessed.filter((f) => {         
         time = parseInt(f.split('_')[4])
-        return (time <= (new Date().getTime() - (1000 * 60 * 60 * 4)))
+        return (time <= (new Date().getTime() - (1000 * 60 * 60 * 2.5)))
     })   
     
     storesToReprocess = storesToReprocess.map((f) => {
@@ -100,6 +100,7 @@ myEmitter.on('processStores', async () => {
         console.log("START:"+startTime)
         console.log("END:"+new Date())  
         console.log("Nothing to process, will try again in 10 minutes...")  
+        await page.close()
         await delay(1000 * 60 * 10) //wait 10 minutes and try again
         myEmitter.emit('processStores');          
     }
