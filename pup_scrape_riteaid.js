@@ -219,6 +219,8 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                     let deleteStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
                     deleteStores.push(new String(storeNumber))
                     fs.writeFileSync('riteaid_ignore_stores.json', JSON.stringify(deleteStores, null, 2))
+                    await delay(3000)  
+                    await page.close() 
                 } else {
 
                 await page.$eval(selectorStore, (el) => {
