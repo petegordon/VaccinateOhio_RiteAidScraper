@@ -52,7 +52,7 @@ myEmitter.on('processStores', async () => {
     console.log(storesProcessed)
     storesToReprocess = filesStoresProcessed.filter((f) => {         
         time = parseInt(f.split('_')[4])
-        return (time <= (new Date().getTime() - (1000 * 60 * 60 * 2.5)))
+        return (time <= (new Date().getTime() - (1000 * 60 * 60 * 2)))
     })   
     
     storesToReprocess = storesToReprocess.map((f) => {
@@ -344,7 +344,8 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     //enter City, 
     let city = await page.$('#city')
     await delay(1000)
-    await city.click()
+    await city.evaluate((e) => e.click());
+    //await city.click()
     await city.type('Columbus')
 
     await delay(3000)
@@ -404,10 +405,19 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         window.scrollTo({top: y, behavior: 'smooth'});
     })    
     
-
-    continueButton.click()
+    await continueButton.evaluate((e) => e.click());
+    //continueButton.click()
     await delay(2000)
-    let modalDialog = page.$('#error-modal .form-btns--continue')
+    console.log('click continue')
+    let modalDialog = await page.$('#error-modal .form-btns--continue')
+//let modalDialogEValuate = await page.evaluateHandle(()=> {return document.querySelector('#error-modal .form-btns--continue')})
+    await delay(2000)
+    console.log('modaldialog')
+    console.log(modalDialog)
+    //modalDialog.click()
+    await modalDialog.evaluate((e) => e.click());
+    console.log('clicked modal dialog')
+/*    
     await page.$eval('#error-modal .form-btns--continue', (el) => {
         const yOffset = -200; 
         const element = el
@@ -422,14 +432,19 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         el.click()        
         console.log('after click')
     })    
+*/
 
     await delay(2000)
-  
+  console.log('before #convid-store-search')
     //select search and enter zip code
     let search = await page.$('#covid-store-search')
     await delay(2000)
-    await search.click()
+    console.log('before #convid-store-search click')    
+    await search.evaluate((e) => e.click());
+    console.log('before type')
+    //await search.click()
     await search.type(zip) //Enter ZipCode 43081
+    console.log('before .covid-store__search__btn button')
     //click Find Stores
     let searchButton = await page.$('.covid-store__search__btn button')
     await page.$eval('.covid-store__search__btn button', (el) => {
@@ -454,7 +469,7 @@ let browser;
 (async () => {
     console.log('zip codes:'+JSON.stringify(storesToProcess))
     
-    browser = await puppeteer.launch({headless:false, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+    browser = await puppeteer.launch({headless:true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 
     // add this handler before emitting any events
     
