@@ -435,7 +435,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
 */
 
     await delay(2000)
-  console.log('before #convid-store-search')
+    console.log('before #convid-store-search')
     //select search and enter zip code
     let search = await page.$('#covid-store-search')
     await delay(2000)
