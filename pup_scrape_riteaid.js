@@ -161,7 +161,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 fs.unlinkSync(storesVaccineDir+existingFiles[j])
             }
             let newFile = storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json'
-            console.log('write '+ newFile)
+            console.log('write newFile:'+ newFile)
             fs.writeFileSync(newFile, JSON.stringify(json, null, 2))
 
             try{
@@ -221,7 +221,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 if(selectStoreButton == ""){
                     let deleteStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
                     deleteStores.push(new String(storeNumber))
-                    console.log('Add Store:'+storeNumber+' to ignore list.'))
+                    console.log('Add Store:'+storeNumber+' to ignore list.')
                     fs.writeFileSync('riteaid_ignore_stores.json', JSON.stringify(deleteStores, null, 2))
                     await delay(3000)  
                     await page.close() 
