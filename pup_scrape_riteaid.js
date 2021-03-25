@@ -485,11 +485,25 @@ let browser;
             await delay(60000)
             myEmitter.emit('processStores');    
         } else {
-            console.log("Hit an exception twice!!! And, sending an SMS....")
+            console.log("Hit an unhandledException twice!!! And, sending an SMS....")
             sendSMS("Hit an Excpetion Twice!!!!")
         }
         exceptionAttempts++
     });
+
+    process.on('unhandledRejection', async function(err, promise) {
+        console.error('Unhandled rejection (promise: ', promise, ', reason: ', err, ').');
+        console.log('UNCAUGHT EXCEPTION - keeping process alive:', err); // err.message is "foobar"
+        if(exceptionAttempts == 0){
+            console.log('delay for a minute... and then try again... ')
+            await delay(60000)
+            myEmitter.emit('processStores');    
+        } else {
+            console.log("Hit an unhandledRejection exception twice!!! And, sending an SMS....")
+            sendSMS("Hit an Promise Rejection Twice!!!!")
+        }
+        exceptionAttempts++        
+    });    
     
     
 
