@@ -32,6 +32,7 @@ function delay(time) {
 
 
 const EventEmitter = require('events');
+const { Console } = require('console');
 class ScrapeEmitter extends EventEmitter {}
 
 const myEmitter = new ScrapeEmitter();
@@ -220,6 +221,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 if(selectStoreButton == ""){
                     let deleteStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
                     deleteStores.push(new String(storeNumber))
+                    console.log('Add Store:'+storeNumber+' to ignore list.'))
                     fs.writeFileSync('riteaid_ignore_stores.json', JSON.stringify(deleteStores, null, 2))
                     await delay(3000)  
                     await page.close() 
