@@ -159,8 +159,9 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 console.log('delete '+ existingFiles[j])
                 fs.unlinkSync(storesVaccineDir+existingFiles[j])
             }
-
-            fs.writeFileSync(storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json', JSON.stringify(json, null, 2))
+            let newFile = storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json'
+            console.log('write '+ newFile)
+            fs.writeFileSync(newFile, JSON.stringify(json, null, 2))
 
             try{
                 console.log("Git pull...")
