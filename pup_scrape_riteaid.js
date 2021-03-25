@@ -447,13 +447,14 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     console.log('before .covid-store__search__btn button')
     //click Find Stores
     let searchButton = await page.$('.covid-store__search__btn button')
+/*    
     await page.$eval('.covid-store__search__btn button', (el) => {
         const yOffset = -200; 
         const element = el
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;    
         window.scrollTo({top: y, behavior: 'smooth'});
     }) 
-
+*/
     await page.evaluate( () => {
         console.log('before click find stores')        
         el = document.querySelector('.covid-store__search__btn button')
