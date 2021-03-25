@@ -602,11 +602,15 @@ async function reformatStoreDataIntoLocationAvailability(dir, awsUpload = true){
     /* Delete previous availability files */
     let files = fs.readdirSync(process.cwd())
     files = files.filter((f) => { return (f.indexOf('riteaid_availability_') > -1 ) })
-    files.forEach((f) => fs.unlinkSync(f))
+    files.forEach((f) => {
+        console.log('delete availability file:'+f)
+        fs.unlinkSync(f)
+    })
 
     /* Create/Write new availability file */
     let current_time = new Date().getTime();
     let filename = 'riteaid_availability_'+current_time+'.json'
+    console.log('write availability file:'+filename)
     fs.writeFileSync(filename, JSON.stringify(storesAllAvailability))
 
 
