@@ -413,7 +413,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
 //let modalDialogEValuate = await page.evaluateHandle(()=> {return document.querySelector('#error-modal .form-btns--continue')})
     await delay(2000)
     console.log('modaldialog')
-    console.log(modalDialog)
+//    console.log(modalDialog)
     //modalDialog.click()
     await modalDialog.evaluate((e) => e.click());
     console.log('clicked modal dialog')
@@ -447,6 +447,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     console.log('before .covid-store__search__btn button')
     //click Find Stores
     let searchButton = await page.$('.covid-store__search__btn button')
+
 /*    
     await page.$eval('.covid-store__search__btn button', (el) => {
         const yOffset = -200; 
@@ -455,6 +456,8 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         window.scrollTo({top: y, behavior: 'smooth'});
     }) 
 */
+await searchButton.evaluate((e) => e.click());
+/*
     await page.evaluate( () => {
         console.log('before click find stores')        
         el = document.querySelector('.covid-store__search__btn button')
@@ -462,7 +465,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         el.click()        
         console.log('after click find stores')
     })   
-
+*/
 
 })
 let browser;
