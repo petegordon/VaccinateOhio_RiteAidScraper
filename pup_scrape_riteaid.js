@@ -137,9 +137,6 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 fs.unlinkSync(storesVaccineDir+existingFiles[j])
             }
 
-          //  fs.writeFileSync(storesVaccineDir+'riteaid_store_slots_summary_'+new Date().getTime()+'_'+storeNumber+'.json', JSON.stringify(json, null, 2))
-
-
 
         }
 
@@ -152,41 +149,47 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
             let storeNumber = qsResult.storeNumber
             console.log('check availability! '+storeNumber);            
 
-            //Delete existing files
-            let allFiles = fs.readdirSync(storesVaccineDir)
-            let existingFiles = allFiles.filter((f) => { return (f.startsWith('riteaid_store_slots_availability_') && f.endsWith(storeNumber+'.json')) })
-            console.log(existingFiles)
-            for(let j=0; j<existingFiles.length; j++){
-                console.log('delete '+ existingFiles[j])
-                fs.unlinkSync(storesVaccineDir+existingFiles[j])
-            }
-            let newFile = storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json'
-            console.log('write newFile:'+ newFile)
-            fs.writeFileSync(newFile, JSON.stringify(json, null, 2))
+            if(json["Status"] != "ERROR"){
 
-            try{
-                console.log("Git pull...")
-                await git.pull()
-                console.log("Git pull...FINISHED")            
-                /* Make change to git and push */
-                console.log('Git add, commit, push...')
-                await git.add('.')
-                await git.commit('Sent Availability for Store:'+storeNumber)
-                await git.push()
-                console.log('Git add, commit, push...FINISHED')                            
-            } catch (ex) {
-                console.log("Try again... wait 1000")
-                await delay(1000)
-                console.log("Git pull...")
-                await git.pull()
-                console.log("Git pull...FINISHED")            
-                /* Make change to git and push */
-                console.log('Git add, commit, push...')
-                await git.add('.')
-                await git.commit('Sent Availability for Store:'+storeNumber)
-                await git.push()
-                console.log('Git add, commit, push...FINISHED')                            
-            }                      
+                //Delete existing files
+                let allFiles = fs.readdirSync(storesVaccineDir)
+                let existingFiles = allFiles.filter((f) => { return (f.startsWith('riteaid_store_slots_availability_') && f.endsWith(storeNumber+'.json')) })
+                console.log(existingFiles)
+                for(let j=0; j<existingFiles.length; j++){
+                    console.log('delete '+ existingFiles[j])
+                    fs.unlinkSync(storesVaccineDir+existingFiles[j])
+                }                
+                
+                let newFile = storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json'
+                console.log('write newFile:'+ newFile)
+                fs.writeFileSync(newFile, JSON.stringify(json, null, 2))
+
+                try{
+                    console.log("Git pull...")
+                    await git.pull()
+                    console.log("Git pull...FINISHED")            
+                    /* Make change to git and push */
+                    console.log('Git add, commit, push...')
+                    await git.add('.')
+                    await git.commit('Sent Availability for Store:'+storeNumber)
+                    await git.push()
+                    console.log('Git add, commit, push...FINISHED')                            
+                } catch (ex) {
+                    console.log("Try again... wait 1000")
+                    await delay(1000)
+                    console.log("Git pull...")
+                    await git.pull()
+                    console.log("Git pull...FINISHED")            
+                    /* Make change to git and push */
+                    console.log('Git add, commit, push...')
+                    await git.add('.')
+                    await git.commit('Sent Availability for Store:'+storeNumber)
+                    await git.push()
+                    console.log('Git add, commit, push...FINISHED')                            
+                }  
+            } else {
+                console.log("ERROR IN JSON!!!! DID NOT WRITE FILE! storeNumber:"+storeNumber)
+            }                    
 
         }
        
@@ -511,8 +514,8 @@ let browser;
     
     
 
-    myEmitter.emit('processStores');
-//TESTING    reformatStoreDataIntoLocationAvailability(storesVaccineDir, false)
+ //   myEmitter.emit('processStores');
+    reformatStoreDataIntoLocationAvailability(storesVaccineDir, false)
 
 
 })();
@@ -562,6 +565,12 @@ async function reformatStoreDataIntoLocationAvailability(dir, awsUpload = true){
                         availability: []
                     }
 
+        console.log("HELLO!")
+        console.log(storeNumber)
+        if(s.availability.Data == null){
+            console.log(storeNumber)
+            console.log("OH NO!!!! WHERE's SLOT")
+        }
         dates = s.availability.Data.slots["1"]
         let store_availability = []
 
