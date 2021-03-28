@@ -507,7 +507,7 @@ let browser;
             myEmitter.emit('processStores');    
         } else {
             console.log("Hit an unhandledRejection exception twice!!! And, sending an SMS....")
-            sendSMS("Hit an Promise Rejection Twice!!!!")
+            sendSMS("RITE_AID Hit an Promise Rejection Twice!!!!")
         }
         exceptionAttempts++        
     });    
