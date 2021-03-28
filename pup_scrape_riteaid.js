@@ -77,7 +77,7 @@ myEmitter.on('processStores', async () => {
 
     storesToProcess = storesToProcess.filter((s) => { return !ignoreStores.includes(s)})
 
-    console.log("Zip Codes Available to Process:"+storesToProcess.length)
+    console.log("Store Numbers Available to Process:"+storesToProcess.length)
     console.log(storesToProcess)
 
 
