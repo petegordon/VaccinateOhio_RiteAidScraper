@@ -514,8 +514,8 @@ let browser;
     
     
 
- //   myEmitter.emit('processStores');
-    reformatStoreDataIntoLocationAvailability(storesVaccineDir, false)
+    myEmitter.emit('processStores');
+ //   reformatStoreDataIntoLocationAvailability(storesVaccineDir, false)
 
 
 })();
@@ -565,12 +565,6 @@ async function reformatStoreDataIntoLocationAvailability(dir, awsUpload = true){
                         availability: []
                     }
 
-        console.log("HELLO!")
-        console.log(storeNumber)
-        if(s.availability.Data == null){
-            console.log(storeNumber)
-            console.log("OH NO!!!! WHERE's SLOT")
-        }
         dates = s.availability.Data.slots["1"]
         let store_availability = []
 
