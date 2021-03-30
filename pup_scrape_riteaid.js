@@ -93,7 +93,8 @@ myEmitter.on('processStores', async () => {
         
         
 
-        storeNumberToProcess = storesToProcess[0]        
+        storeNumberToProcess = storesToProcess[0]     
+        console.log(storeNumberToProcess)   
         store = storesObjectKeys[storeNumberToProcess]
         myEmitter.emit("searchStoreAvailability", store, page)                  
 
