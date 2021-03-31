@@ -87,7 +87,7 @@ myEmitter.on('processStores', async () => {
 
     if(storesToProcess.length > 0){
 
-        console.log("PROCESS STORES:::")
+        console.log(new Date()+"::PROCESS STORES:::")
         console.log("Current Working Directory...")
         console.log(process.cwd())
         
