@@ -32,6 +32,7 @@ function delay(time) {
 
 
 const EventEmitter = require('events');
+const { Console } = require('console');
 class ScrapeEmitter extends EventEmitter {}
 
 const myEmitter = new ScrapeEmitter();
@@ -52,13 +53,14 @@ myEmitter.on('processStores', async () => {
     console.log(storesProcessed)
     storesToReprocess = filesStoresProcessed.filter((f) => {         
         time = parseInt(f.split('_')[4])
-        return (time <= (new Date().getTime() - (1000 * 60 * 60 * 4)))
+        return (time <= (new Date().getTime() - (1000 * 60 * 60 * 2)))
     })   
     
     storesToReprocess = storesToReprocess.map((f) => {
         storeNumber = f.split('_')[5].split('.')[0]
         return storeNumber
     })
+
     console.log("stores to reprocess")
     console.log(storesToReprocess)
 
@@ -67,8 +69,17 @@ myEmitter.on('processStores', async () => {
     console.log(storesToProcess)
 
     storesToProcess.push(...storesToReprocess)
-    console.log("Zip Codes Available to Process:"+storesToProcess.length)
+
+    /** Ignore these changing, no longer available stores */
+    let ignoreStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
+    console.log("stores to ignore")
+    console.log(ignoreStores)
+
+    storesToProcess = storesToProcess.filter((s) => { return !ignoreStores.includes(s)})
+
+    console.log("Store Numbers Available to Process:"+storesToProcess.length)
     console.log(storesToProcess)
+
 
 
     let page = await browser.newPage();
@@ -76,13 +87,14 @@ myEmitter.on('processStores', async () => {
 
     if(storesToProcess.length > 0){
 
-        console.log("PROCESS STORES:::")
+        console.log(new Date()+"::PROCESS STORES:::")
         console.log("Current Working Directory...")
         console.log(process.cwd())
         
         
 
-        storeNumberToProcess = storesToProcess[0]        
+        storeNumberToProcess = storesToProcess[0]     
+        console.log(storeNumberToProcess)   
         store = storesObjectKeys[storeNumberToProcess]
         myEmitter.emit("searchStoreAvailability", store, page)                  
 
@@ -90,6 +102,7 @@ myEmitter.on('processStores', async () => {
         console.log("START:"+startTime)
         console.log("END:"+new Date())  
         console.log("Nothing to process, will try again in 10 minutes...")  
+        await page.close()
         await delay(1000 * 60 * 10) //wait 10 minutes and try again
         myEmitter.emit('processStores');          
     }
@@ -125,9 +138,6 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                 fs.unlinkSync(storesVaccineDir+existingFiles[j])
             }
 
-          //  fs.writeFileSync(storesVaccineDir+'riteaid_store_slots_summary_'+new Date().getTime()+'_'+storeNumber+'.json', JSON.stringify(json, null, 2))
-
-
 
         }
 
@@ -140,40 +150,47 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
             let storeNumber = qsResult.storeNumber
             console.log('check availability! '+storeNumber);            
 
-            //Delete existing files
-            let allFiles = fs.readdirSync(storesVaccineDir)
-            let existingFiles = allFiles.filter((f) => { return (f.startsWith('riteaid_store_slots_availability_') && f.endsWith(storeNumber+'.json')) })
-            console.log(existingFiles)
-            for(let j=0; j<existingFiles.length; j++){
-                console.log('delete '+ existingFiles[j])
-                fs.unlinkSync(storesVaccineDir+existingFiles[j])
-            }
+            if(json["Status"] != "ERROR"){
 
-            fs.writeFileSync(storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json', JSON.stringify(json, null, 2))
+                //Delete existing files
+                let allFiles = fs.readdirSync(storesVaccineDir)
+                let existingFiles = allFiles.filter((f) => { return (f.startsWith('riteaid_store_slots_availability_') && f.endsWith(storeNumber+'.json')) })
+                console.log(existingFiles)
+                for(let j=0; j<existingFiles.length; j++){
+                    console.log('delete '+ existingFiles[j])
+                    fs.unlinkSync(storesVaccineDir+existingFiles[j])
+                }                
+                
+                let newFile = storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json'
+                console.log('write newFile:'+ newFile)
+                fs.writeFileSync(newFile, JSON.stringify(json, null, 2))
 
-            try{
-                console.log("Git pull...")
-                await git.pull()
-                console.log("Git pull...FINISHED")            
-                /* Make change to git and push */
-                console.log('Git add, commit, push...')
-                await git.add('.')
-                await git.commit('Sent Availability for Store:'+storeNumber)
-                await git.push()
-                console.log('Git add, commit, push...FINISHED')                            
-            } catch (ex) {
-                console.log("Try again... wait 1000")
-                await delay(1000)
-                console.log("Git pull...")
-                await git.pull()
-                console.log("Git pull...FINISHED")            
-                /* Make change to git and push */
-                console.log('Git add, commit, push...')
-                await git.add('.')
-                await git.commit('Sent Availability for Store:'+storeNumber)
-                await git.push()
-                console.log('Git add, commit, push...FINISHED')                            
-            }                      
+                try{
+                    console.log("Git pull...")
+                    await git.pull()
+                    console.log("Git pull...FINISHED")            
+                    /* Make change to git and push */
+                    console.log('Git add, commit, push...')
+                    await git.add('.')
+                    await git.commit('Sent Availability for Store:'+storeNumber)
+                    await git.push()
+                    console.log('Git add, commit, push...FINISHED')                            
+                } catch (ex) {
+                    console.log("Try again... wait 1000")
+                    await delay(1000)
+                    console.log("Git pull...")
+                    await git.pull()
+                    console.log("Git pull...FINISHED")            
+                    /* Make change to git and push */
+                    console.log('Git add, commit, push...')
+                    await git.add('.')
+                    await git.commit('Sent Availability for Store:'+storeNumber)
+                    await git.push()
+                    console.log('Git add, commit, push...FINISHED')                            
+                }  
+            } else {
+                console.log("ERROR IN JSON!!!! DID NOT WRITE FILE! storeNumber:"+storeNumber)
+            }                    
 
         }
        
@@ -198,12 +215,21 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
             
 //              let storeNumber = json.Data.stores[0].storeNumber
 
-
+                await delay(2000)
                 console.log('try to select storeNumber:'+storeNumber)
                 let selectorStore = '.covid-store__store__anchor[data-loc-id="'+storeNumber+'"]'
 
-                await page.waitForSelector(selectorStore)
-                let selectStoreButton = await page.$(selectorStore)
+//                await page.waitForSelector(selectorStore)
+                let selectStoreButton = await page.$(selectorStore) || ""
+
+                if(selectStoreButton == ""){
+                    let deleteStores = JSON.parse(fs.readFileSync('riteaid_ignore_stores.json'))
+                    deleteStores.push(new String(storeNumber))
+                    console.log('Add Store:'+storeNumber+' to ignore list.')
+                    fs.writeFileSync('riteaid_ignore_stores.json', JSON.stringify(deleteStores, null, 2))
+                    await delay(3000)  
+                    await page.close() 
+                } else {
 
                 await page.$eval(selectorStore, (el) => {
                     const yOffset = -200; 
@@ -212,11 +238,13 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                     window.scrollTo({top: y, behavior: 'smooth'});
                 })    
                 console.log('before select click')
+                await delay(2000)
                 //await page.click(selectorStore)
                 await selectStoreButton.evaluate((e) => e.click());
                 //await selectStoreButton.click()   
                 console.log('after click select')             
                 console.log('select continue button')
+                await delay(1000)
                 let continueButton = await page.$('#continue')
                 console.log('before scroll')            
                 await page.$eval('#continue', (el) => {
@@ -247,8 +275,9 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
                     console.log('delete '+ existingFilesCheckEmpty[j])
                     fs.unlinkSync(storesVaccineDir+existingFilesCheckEmpty[j])
                 }
-
-                fs.writeFileSync(storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json', JSON.stringify(empty_slots, null, 2))
+                let newEmptyFile = storesVaccineDir+'riteaid_store_slots_availability_'+new Date().getTime()+'_'+storeNumber+'.json'
+                console.log('write new empty file:'+newEmptyFile)
+                fs.writeFileSync(newEmptyFile, JSON.stringify(empty_slots, null, 2))
 
                 try{
                     console.log("Git pull...")
@@ -288,10 +317,14 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
               if(currentTime.getTime() > (awsUploadTime.getTime()+(1000*60*10))){
                   await reformatStoreDataIntoLocationAvailability(storesVaccineDir)
                   awsUploadTime = currentTime
-              }
+              } 
+
+            }
+
+            myEmitter.emit('processStores'); 
+
               
-              
-              myEmitter.emit('processStores');  
+
         }
 
 
@@ -319,7 +352,8 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     //enter City, 
     let city = await page.$('#city')
     await delay(1000)
-    await city.click()
+    await city.evaluate((e) => e.click());
+    //await city.click()
     await city.type('Columbus')
 
     await delay(3000)
@@ -379,10 +413,19 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         window.scrollTo({top: y, behavior: 'smooth'});
     })    
     
-
-    continueButton.click()
+    await continueButton.evaluate((e) => e.click());
+    //continueButton.click()
     await delay(2000)
-    let modalDialog = page.$('#error-modal .form-btns--continue')
+    console.log('click continue')
+    let modalDialog = await page.$('#error-modal .form-btns--continue')
+//let modalDialogEValuate = await page.evaluateHandle(()=> {return document.querySelector('#error-modal .form-btns--continue')})
+    await delay(2000)
+    console.log('modaldialog')
+//    console.log(modalDialog)
+    //modalDialog.click()
+    await modalDialog.evaluate((e) => e.click());
+    console.log('clicked modal dialog')
+/*    
     await page.$eval('#error-modal .form-btns--continue', (el) => {
         const yOffset = -200; 
         const element = el
@@ -397,23 +440,32 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         el.click()        
         console.log('after click')
     })    
+*/
 
     await delay(2000)
-  
+    console.log('before #convid-store-search')
     //select search and enter zip code
     let search = await page.$('#covid-store-search')
     await delay(2000)
-    await search.click()
+    console.log('before #convid-store-search click')    
+    await search.evaluate((e) => e.click());
+    console.log('before type')
+    //await search.click()
     await search.type(zip) //Enter ZipCode 43081
+    console.log('before .covid-store__search__btn button')
     //click Find Stores
     let searchButton = await page.$('.covid-store__search__btn button')
+
+/*    
     await page.$eval('.covid-store__search__btn button', (el) => {
         const yOffset = -200; 
         const element = el
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;    
         window.scrollTo({top: y, behavior: 'smooth'});
     }) 
-
+*/
+await searchButton.evaluate((e) => e.click());
+/*
     await page.evaluate( () => {
         console.log('before click find stores')        
         el = document.querySelector('.covid-store__search__btn button')
@@ -421,7 +473,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         el.click()        
         console.log('after click find stores')
     })   
-
+*/
 
 })
 let browser;
@@ -429,7 +481,7 @@ let browser;
 (async () => {
     console.log('zip codes:'+JSON.stringify(storesToProcess))
     
-    browser = await puppeteer.launch({headless:false, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+    browser = await puppeteer.launch({headless:true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 
     // add this handler before emitting any events
     
@@ -441,16 +493,30 @@ let browser;
             await delay(60000)
             myEmitter.emit('processStores');    
         } else {
-            console.log("Hit an exception twice!!! And, sending an SMS....")
+            console.log("Hit an unhandledException twice!!! And, sending an SMS....")
             sendSMS("Hit an Excpetion Twice!!!!")
         }
         exceptionAttempts++
     });
+
+    process.on('unhandledRejection', async function(err, promise) {
+        console.error('Unhandled rejection (promise: ', promise, ', reason: ', err, ').');
+        console.log('UNCAUGHT EXCEPTION - keeping process alive:', err); // err.message is "foobar"
+        if(exceptionAttempts == 0){
+            console.log('delay for a minute... and then try again... ')
+            await delay(60000)
+            myEmitter.emit('processStores');    
+        } else {
+            console.log("Hit an unhandledRejection exception twice!!! And, sending an SMS....")
+            sendSMS("RITE_AID Hit an Promise Rejection Twice!!!!")
+        }
+        exceptionAttempts++        
+    });    
     
     
 
     myEmitter.emit('processStores');
-//TESTING    reformatStoreDataIntoLocationAvailability(storesVaccineDir, false)
+ //   reformatStoreDataIntoLocationAvailability(storesVaccineDir, false)
 
 
 })();
@@ -540,11 +606,15 @@ async function reformatStoreDataIntoLocationAvailability(dir, awsUpload = true){
     /* Delete previous availability files */
     let files = fs.readdirSync(process.cwd())
     files = files.filter((f) => { return (f.indexOf('riteaid_availability_') > -1 ) })
-    files.forEach((f) => fs.unlinkSync(f))
+    files.forEach((f) => {
+        console.log('delete availability file:'+f)
+        fs.unlinkSync(f)
+    })
 
     /* Create/Write new availability file */
     let current_time = new Date().getTime();
     let filename = 'riteaid_availability_'+current_time+'.json'
+    console.log('write availability file:'+filename)
     fs.writeFileSync(filename, JSON.stringify(storesAllAvailability))
 
 
