@@ -101,7 +101,7 @@ const fetch = require('node-fetch');
 
 
         // Upload availability file to AWS S3 BUCKET 
-        console.log('do aws upload...')
+        console.log(new Date()+'::do aws upload...')
         // snippet-start:[s3.JavaScript.buckets.upload]
         // Load the AWS SDK for Node.js
         var AWS = require('aws-sdk');
