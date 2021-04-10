@@ -39,7 +39,7 @@ const fetch = require('node-fetch');
                         console.log(JSON.stringify(location))
                     }
                     
-                    if(dates[j].type.indexOf("2") >= 0){
+                    if(dates[j].type && dates[j].type.indexOf("2") >= 0){
                         //2nd dose, so skip it.
                         continue;
                     }
