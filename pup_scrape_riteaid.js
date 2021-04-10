@@ -495,6 +495,8 @@ let browser;
         } else {
             console.log("Hit an unhandledException twice!!! And, sending an SMS....")
             sendSMS("Hit an Excpetion Twice!!!!")
+            console.log("KILL PROCESS")
+            process.exit(1)            
         }
         exceptionAttempts++
     });
@@ -507,8 +509,10 @@ let browser;
             await delay(60000)
             myEmitter.emit('processStores');    
         } else {
-            console.log("Hit an unhandledRejection exception twice!!! And, sending an SMS....")
+            console.log("Hit an unhandledRejection exception twice!!! And, sending an SMS....")            
             sendSMS("RITE_AID Hit an Promise Rejection Twice!!!!")
+            console.log("KILL PROCESS")
+            process.exit(1)            
         }
         exceptionAttempts++        
     });    
