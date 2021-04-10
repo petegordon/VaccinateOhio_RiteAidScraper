@@ -35,6 +35,9 @@ const fetch = require('node-fetch');
                 let store_availability = []
                 for(let j=0; j<dates.length; j++){       
 
+                    if(!dates[j].type){
+                        console.log(dates[j])
+                    }
                     if(dates[j].type.indexOf("2") >= 0){
                         //2nd dose, so skip it.
                         continue;
