@@ -34,10 +34,6 @@ const fetch = require('node-fetch');
                 dates = location.properties.appointments
                 let store_availability = []
                 for(let j=0; j<dates.length; j++){       
-
-                    if(!dates[j].type){
-                        console.log(JSON.stringify(location))
-                    }
                     
                     if(dates[j].type && dates[j].type.indexOf("2") >= 0){
                         //2nd dose, so skip it.
@@ -56,9 +52,12 @@ const fetch = require('node-fetch');
                     let timeString = String(datetime.getHours()).padStart(2, '0')+":"+String(datetime.getMinutes()).padStart(2, '0')+":"+String(datetime.getSeconds()).padStart(2, '0')
 
                     let available = {
-                        availability_time: dateString+' '+timeString,
-                        brand: getBrandCode(dates[j].type)
+                        availability_time: dateString+' '+timeString,                        
                     }
+                    if(dates[j].type){
+                        available.brand = getBrandCode(dates[j].type)
+                    }
+                    
                     store_availability.push(available)      
 
                 }
