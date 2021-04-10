@@ -36,10 +36,10 @@ const fetch = require('node-fetch');
                 for(let j=0; j<dates.length; j++){       
 
                     if(!dates[j].type){
-                        console.log(location)
+                        console.log(JSON.stringify(location))
                     }
                     
-                    if(!location.appointment_types.unknown && dates[j].type.indexOf("2") >= 0){
+                    if(dates[j].type.indexOf("2") >= 0){
                         //2nd dose, so skip it.
                         continue;
                     }
