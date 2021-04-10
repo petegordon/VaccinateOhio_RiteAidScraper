@@ -38,7 +38,8 @@ const fetch = require('node-fetch');
                     if(!dates[j].type){
                         console.log(location)
                     }
-                    if(dates[j].type.indexOf("2") >= 0){
+                    
+                    if(!location.appointment_types.unknown && dates[j].type.indexOf("2") >= 0){
                         //2nd dose, so skip it.
                         continue;
                     }
