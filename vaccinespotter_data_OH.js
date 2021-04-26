@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 
 (async () => {
 
-    while(true){
+  //  while(true){
         
         const response = await fetch('https://www.vaccinespotter.org/api/v0/states/OH.json')
         let vs = await response.json()    
@@ -29,10 +29,11 @@ const fetch = require('node-fetch');
                 availability: []
             }
 
+            let store_availability = []
+                        
             if(location.properties.appointments != null){
                 
                 dates = location.properties.appointments
-                let store_availability = []
                 for(let j=0; j<dates.length; j++){       
                     
                     if(dates[j].type && dates[j].type.indexOf("2") >= 0){
@@ -61,6 +62,7 @@ const fetch = require('node-fetch');
                     store_availability.push(available)      
 
                 }
+            }
                 
                 storeDataFormat.provider_brand = location.properties.provider_brand
                 storeDataFormat.availability = store_availability                
@@ -71,12 +73,12 @@ const fetch = require('node-fetch');
                 storeDataFormat.original_data_unix_time = location.properties.appointments_last_fetched
                 storeDataFormat.origina_data_time = new Date(location.properties.appointments_last_fetched).toISOString()              
                 storesAllAvailability.push(storeDataFormat)
-            }
+        
 
         }
 
 
-        storesAllAvailability = storesAllAvailability.filter((l)=> ['walmart','walgreens'].includes(l.provider_brand))
+        storesAllAvailability = storesAllAvailability.filter((l)=> ['walmart','walgreens', 'kroger', 'rite_aid'].includes(l.provider_brand))
 
 
 
@@ -135,8 +137,8 @@ const fetch = require('node-fetch');
         });
         
 
-        await delay(600000);
-    }
+ //       await delay(600000);
+ //   }
 
 
 })();
