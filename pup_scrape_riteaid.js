@@ -452,16 +452,16 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await delay(2000)
     console.log('before #convid-store-search')
     //select search and enter zip code
-    let search = await page.$('#covid-store-search')
-    await delay(2000)
-    console.log('before #convid-store-search click')    
-    await search.evaluate((e) => e.click());
-    console.log('before type')
+ //   let search = await page.$('#covid-store-search')
+//    await delay(2000)
+//    console.log('before #convid-store-search click')    
+//    await search.evaluate((e) => e.click());
+//    console.log('before type')
     //await search.click()
-    await search.type(zip) //Enter ZipCode 43081
-    console.log('before .covid-store__search__btn button')
+//   await search.type(zip) //Enter ZipCode 43081
+//    console.log('before .covid-store__search__btn button')
     //click Find Stores
-    let searchButton = await page.$('.covid-store__search__btn button')
+//    let searchButton = await page.$('.covid-store__search__btn button')
 
 /*    
     await page.$eval('.covid-store__search__btn button', (el) => {
@@ -471,7 +471,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         window.scrollTo({top: y, behavior: 'smooth'});
     }) 
 */
-await searchButton.evaluate((e) => e.click());
+//await searchButton.evaluate((e) => e.click());
 /*
     await page.evaluate( () => {
         console.log('before click find stores')        
