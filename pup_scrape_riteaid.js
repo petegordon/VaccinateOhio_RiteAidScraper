@@ -361,7 +361,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await page.focus('.covid-eligibilty__check')
 
     let selector = '#eligibility_state'
-    const input = await page.$(selector);
+    let input = await page.$(selector);
     await page.$eval('#eligibility_state', (el) => {
         const yOffset = -200; 
         const element = el
@@ -372,6 +372,12 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await input.click({ clickCount: 3 })
     await page.type(selector, "Ohio")
 
+    selector = '#zip'
+    input = await page.$(selector);
+    await delay(1000)
+    await input.click({ clickCount: 3 })
+    await page.type(selector, zip)
+
     let occ = await page.$('#Occupation')
     await page.$eval('#Occupation', (el) => {
         const yOffset = -200; 
@@ -379,6 +385,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;    
         window.scrollTo({top: y, behavior: 'smooth'});
     })     
+
     await delay(1000)
     await occ.click('#Occupation')
     //await occ.type('Childcare Worker')     
