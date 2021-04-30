@@ -488,7 +488,7 @@ let browser;
 (async () => {
     console.log('zip codes:'+JSON.stringify(storesToProcess))
     
-    browser = await puppeteer.launch({headless:true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+    browser = await puppeteer.launch({headless:false, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 
     // add this handler before emitting any events
     
@@ -501,7 +501,7 @@ let browser;
             myEmitter.emit('processStores');    
         } else {
             console.log("Hit an unhandledException twice!!! And, sending an SMS....")
-            sendSMS("Hit an Excpetion Twice!!!!")
+            //sendSMS("Hit an Excpetion Twice!!!!")
             console.log("KILL PROCESS")
             process.exit(1)            
         }
@@ -517,7 +517,7 @@ let browser;
             myEmitter.emit('processStores');    
         } else {
             console.log("Hit an unhandledRejection exception twice!!! And, sending an SMS....")            
-            sendSMS("RITE_AID Hit an Promise Rejection Twice!!!!")
+ //           sendSMS("RITE_AID Hit an Promise Rejection Twice!!!!")
             console.log("KILL PROCESS")
             process.exit(1)            
         }
