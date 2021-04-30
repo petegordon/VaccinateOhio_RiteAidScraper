@@ -488,7 +488,7 @@ let browser;
 (async () => {
     console.log('zip codes:'+JSON.stringify(storesToProcess))
     
-    browser = await puppeteer.launch({headless:false, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+    browser = await puppeteer.launch({headless:true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 
     // add this handler before emitting any events
     
