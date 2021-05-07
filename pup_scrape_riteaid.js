@@ -350,14 +350,15 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await dob.type('10/29/1955')
 
     //enter City, 
-    let city = await page.$('#city')
-    await delay(1000)
-    await city.evaluate((e) => e.click());
+//    let city = await page.$('#city')
+//    await delay(1000)
+//    await city.evaluate((e) => e.click());
     //await city.click()
-    await city.type('Columbus')
+//    await city.type('Columbus')
 
     await delay(3000)
-   
+
+/*    
     await page.focus('.covid-eligibilty__check')
 
     let selector = '#eligibility_state'
@@ -371,13 +372,13 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await delay(1000)
     await input.click({ clickCount: 3 })
     await page.type(selector, "Ohio")
-
+*/
     selector = '#zip'
     input = await page.$(selector);
     await delay(1000)
     await input.click({ clickCount: 3 })
     await page.type(selector, zip)
-
+/*
     let occ = await page.$('#Occupation')
     await page.$eval('#Occupation', (el) => {
         const yOffset = -200; 
@@ -389,13 +390,13 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await delay(1000)
     await occ.click('#Occupation')
     //await occ.type('Childcare Worker')     
-    
+*/    
     //click on ChildCare Worker Occupation
-    await page.evaluate( () => {
-        document.querySelectorAll('.typeahead__list')[1].querySelectorAll('li')[0].click()
-    })
+//    await page.evaluate( () => {
+//        document.querySelectorAll('.typeahead__list')[1].querySelectorAll('li')[0].click()
+//    })
 
-    
+/*    
     let medical_conditions = await page.$('#mediconditions')
     await page.$eval('#mediconditions', (el) => {
         const yOffset = -200; 
@@ -409,7 +410,7 @@ myEmitter.on('searchStoreAvailability', async (store, page) => {
     await page.evaluate( () => {
         document.querySelectorAll('.typeahead__list')[2].querySelectorAll('li')[28].click()
     })    
-
+*/
     //click Continue
     await delay(1000)
     let continueButton = await page.$('#continue')
@@ -488,7 +489,7 @@ let browser;
 (async () => {
     console.log('zip codes:'+JSON.stringify(storesToProcess))
     
-    browser = await puppeteer.launch({headless:true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+    browser = await puppeteer.launch({headless:false, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 
     // add this handler before emitting any events
     
@@ -580,25 +581,28 @@ async function reformatStoreDataIntoLocationAvailability(dir, awsUpload = true){
         dates = s.availability.Data.slots["1"]
         let store_availability = []
 
-        for(let j=0; j<dates.length; j++){        
-            let date = dates[j]
-            if(end_date == null || new Date(date) > new Date(end_date)){
-                end_date = new Date(date)
+        if(dates){
+            for(let j=0; j<dates.length; j++){        
+                let date = dates[j]
+                if(end_date == null || new Date(date) > new Date(end_date)){
+                    end_date = new Date(date)
+                }
+                if(start_date == null || new Date(date) < new Date(start_date)){
+                    start_date = new Date(date)
+                }        
+    
+                let datetime = new Date(date)
+                let dateString = datetime.getFullYear()+"-"+String(datetime.getMonth()+1).padStart(2, '0')+"-"+String(datetime.getDate()).padStart(2, '0')
+                let timeString = String(datetime.getHours()).padStart(2, '0')+":"+String(datetime.getMinutes()).padStart(2, '0')+":"+String(datetime.getSeconds()).padStart(2, '0')
+    
+                let available = {
+                    availability_time: dateString+' '+timeString
+                }
+                store_availability.push(available)      
+    
             }
-            if(start_date == null || new Date(date) < new Date(start_date)){
-                start_date = new Date(date)
-            }        
-
-            let datetime = new Date(date)
-            let dateString = datetime.getFullYear()+"-"+String(datetime.getMonth()+1).padStart(2, '0')+"-"+String(datetime.getDate()).padStart(2, '0')
-            let timeString = String(datetime.getHours()).padStart(2, '0')+":"+String(datetime.getMinutes()).padStart(2, '0')+":"+String(datetime.getSeconds()).padStart(2, '0')
-
-            let available = {
-                availability_time: dateString+' '+timeString
-            }
-            store_availability.push(available)      
-
         }
+
             
         storeDataFormat.availability = store_availability                
             
